@@ -4,7 +4,9 @@
 <%@ page import="java.util.ArrayList"%>
 <%
 @ SuppressWarnings ("unchecked")
-ArrayList<JavaBeans> lista = (ArrayList<JavaBeans>) request.getAttribute("contatos");
+ArrayList<JavaBeans> lista = (ArrayList<JavaBeans>) request.getAttribute("contatosUsuario");
+String idUsuario = (String) request.getAttribute("idUsuario");
+String nomeUsuario = (String) request.getAttribute("nomeUsuario");
 /* 
 for(int i = 0; i < lista.size(); i++) {
 		out.println(lista.get(i).getIdcon());
@@ -23,9 +25,10 @@ for(int i = 0; i < lista.size(); i++) {
 </head>
 <body>
 	<div class="container">
-		<h1>Agenda de contatos</h1><br>
-		<div><a href="novo.html" class="botao1">Novo contato</a>
-		<a href="report" class="botao2">Relatório</a></div>
+		<h1>Agenda de contatos do (<%=idUsuario%>) <%=nomeUsuario %> </h1><br>
+		<div><a href="login.jsp" class="botao2">Trocar usuário</a>
+		<a href="novo.html" class="botao1">Novo contato</a></div>
+		
 		<table id="tabela">
 			<thead>
 				<tr>

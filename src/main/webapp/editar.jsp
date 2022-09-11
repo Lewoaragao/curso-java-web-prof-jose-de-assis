@@ -10,7 +10,7 @@
 </head>
 <body>
 	<div class="container">
-		<h1>Criar novo contato</h1>
+		<h1>Editar contato</h1>
 		<form name="frmContato" action="update">
 			<table>
 				<tr>
@@ -19,7 +19,7 @@
 				</tr>
 
 				<tr>
-					<td><input type="text" name="nome" class="caixa2"
+					<td><input type="text" name="nome" class="caixa1"
 						value="<%out.print(request.getAttribute("nome"));%>"></td>
 				</tr>
 
@@ -31,6 +31,11 @@
 				<tr>
 					<td><input type="text" name="email" class="caixa1"
 						value="<%out.print(request.getAttribute("email"));%>"></td>
+				</tr>
+				
+				<tr>
+					<td><input type="text" name="idcon" id="caixa3" readonly
+						value="<%out.print(request.getAttribute("id_usuario"));%>"></td>
 				</tr>
 			</table>
 			<input type="button" value="Salvar" class="botao1"

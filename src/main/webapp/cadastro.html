@@ -8,22 +8,23 @@
 </head>
 <body>
 <div class="container">
-	<h1>Criar novo contato</h1>
-	<form name="frmContato" action="insert">
+	<h1>Tela de cadastro</h1>
+	<form name="frmCadastro" action="insertUsuario">
 		<table>
 			<tr>
 				<td><input type="text" name="nome" placeholder="Nome" class="caixa1"></td>
 			</tr>
 
 			<tr>
-				<td><input type="text" name="fone" placeholder="Fone" class="caixa1"></td>
+				<td><input type="text" name="senha" placeholder="Senha" class="caixa1"></td>
 			</tr>
-
+			
 			<tr>
-				<td><input type="text" name="email" placeholder="E-mail" class="caixa1"></td>
+				<td><input type="text" name="email" placeholder="Email" class="caixa1"></td>
 			</tr>
 		</table>
-		<input type="button" value="Adicionar" class="botao1" onclick="validar()">
+		<input type="button" value="Entrar" class="botao1"
+				onclick="validarCadastroUsuario()">
 	</form>
 	</div>
 	

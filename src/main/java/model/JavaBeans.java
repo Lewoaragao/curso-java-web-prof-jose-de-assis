@@ -18,6 +18,9 @@ public class JavaBeans {
 	/** The email. */
 	private String email;
 	
+	/** The id_usuario. */
+	private int idUsuario;
+	
 	/**
 	 * Instantiates a new java beans.
 	 */
@@ -33,12 +36,13 @@ public class JavaBeans {
 	 * @param fone the fone
 	 * @param email the email
 	 */
-	public JavaBeans(String idcon, String nome, String fone, String email) {
+	public JavaBeans(String idcon, String nome, String fone, String email, int idUsuario) {
 		super();
 		this.idcon = idcon;
 		this.nome = nome;
 		this.fone = fone;
 		this.email = email;
+		this.idUsuario = idUsuario;
 	}
 	
 	/**
@@ -111,5 +115,13 @@ public class JavaBeans {
 	 */
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public int getIdUsuario() {
+		return idUsuario;
+	}
+
+	public void setIdUsuario(int idUsuario) {
+		this.idUsuario = idUsuario;
 	}
 }

@@ -18,22 +18,27 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 import model.DAO;
 import model.JavaBeans;
+import model.UsuarioBeans;
 
 // TODO: Auto-generated Javadoc
 /**
  * The Class Controller.
  */
-@WebServlet(urlPatterns = { "/Controller", "/main", "/insert", "/select", "/update", "/delete", "/report" })
+@WebServlet(urlPatterns = { "/Controller", "/main", "/insert", "/select", "/update", "/delete", "/report",
+		"/insertUsuario", "/login", "/logar", "/usuarios", "/novoContato", "/selectUsuario" })
 public class Controller extends HttpServlet {
-	
+
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
-	
+
 	/** The dao. */
 	DAO dao = new DAO();
-	
+
 	/** The contato. */
 	JavaBeans contato = new JavaBeans();
+
+	/** The contato. */
+	UsuarioBeans usuario = new UsuarioBeans();
 
 	/**
 	 * Instantiates a new controller.
@@ -45,10 +50,10 @@ public class Controller extends HttpServlet {
 	/**
 	 * Do get.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -70,7 +75,15 @@ public class Controller extends HttpServlet {
 			removerContato(request, response);
 		} else if (action.equals("/report")) {
 			gerarRelatorio(request, response);
-		} else {
+		} else if (action.equals("/insertUsuario")) {
+			adicionarUsuario(request, response);
+		} else if (action.equals("/login")) {
+			response.sendRedirect("login.html");
+		} else if (action.equals("/usuarios")) {
+			usuarios(request, response);
+		} else if (action.equals("/logar")) {
+			logar(request, response);
+		}  else {
 			response.sendRedirect("index.html");
 		}
 	}
@@ -78,10 +91,10 @@ public class Controller extends HttpServlet {
 	/**
 	 * Contatos.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	// Listar contatos
 	protected void contatos(HttpServletRequest request, HttpServletResponse response)
@@ -108,10 +121,10 @@ public class Controller extends HttpServlet {
 	/**
 	 * Adicionar contato.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	// Novo contato
 	protected void adicionarContato(HttpServletRequest request, HttpServletResponse response)
@@ -127,19 +140,20 @@ public class Controller extends HttpServlet {
 		contato.setEmail(request.getParameter("email"));
 
 		// Invocar o método inserirContato passando o objeto contato
-		dao.inserirContato(contato);
+		dao.inserirContato(contato, usuario);
 
 		// Redirecionar para o documento agenda.jsp
-		response.sendRedirect("main");
+//		response.sendRedirect("agendaUsuario.jsp");
+		contatosUsuario(request, response, usuario);
 	}
 
 	/**
 	 * Listar contato.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	protected void listarContato(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -164,6 +178,7 @@ public class Controller extends HttpServlet {
 		request.setAttribute("nome", contato.getNome());
 		request.setAttribute("fone", contato.getFone());
 		request.setAttribute("email", contato.getEmail());
+		request.setAttribute("id_usuario", contato.getIdUsuario());
 
 		// Encaminhar ao documento editar.jsp
 		RequestDispatcher rd = request.getRequestDispatcher("editar.jsp");
@@ -173,10 +188,10 @@ public class Controller extends HttpServlet {
 	/**
 	 * Editar contato.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	protected void editarContato(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -204,10 +219,10 @@ public class Controller extends HttpServlet {
 	/**
 	 * Remover contato.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	// Remover um contato
 	protected void removerContato(HttpServletRequest request, HttpServletResponse response)
@@ -223,16 +238,16 @@ public class Controller extends HttpServlet {
 		dao.deletarContato(contato);
 
 		// Redirecionar para o documento agenda.jsp (atualizando as alterações)
-		response.sendRedirect("main");
+		contatosUsuario(request, response, usuario);
 	}
 
 	/**
 	 * Gerar relatorio.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	// Gerar relatório em pdf
 	protected void gerarRelatorio(HttpServletRequest request, HttpServletResponse response)
@@ -253,32 +268,117 @@ public class Controller extends HttpServlet {
 			documento.open();
 			documento.add(new Paragraph("Lista de contatos: "));
 			documento.add(new Paragraph(" "));
-			
+
 			// Criar uma tabela
 			PdfPTable tabela = new PdfPTable(3);
-			
+
 			// Cabeçalho
 			PdfPCell col1 = new PdfPCell(new Paragraph("Nome"));
 			PdfPCell col2 = new PdfPCell(new Paragraph("Fone"));
 			PdfPCell col3 = new PdfPCell(new Paragraph("Email"));
-			
+
 			tabela.addCell(col1);
 			tabela.addCell(col2);
 			tabela.addCell(col3);
-			
+
 			// Popular a tabela com os contatos
 			ArrayList<JavaBeans> lista = dao.listarContatos();
-			for(int i = 0; i < lista.size(); i++) {
+			for (int i = 0; i < lista.size(); i++) {
 				tabela.addCell(lista.get(i).getNome());
 				tabela.addCell(lista.get(i).getFone());
 				tabela.addCell(lista.get(i).getEmail());
 			}
-			
+
 			documento.add(tabela);
 			documento.close();
 		} catch (Exception e) {
 			System.out.println(e);
 			documento.close();
 		}
+	}
+
+	// Novo usuário
+	protected void adicionarUsuario(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// Teste de recebimento dos dados do formulário
+		// System.out.println(request.getParameter("nome"));
+		// System.out.println(request.getParameter("fone"));
+		// System.out.println(request.getParameter("email"));
+
+		// Setar as variáveis JavaBeans
+		usuario.setNomeUsuario(request.getParameter("nome"));
+		usuario.setSenhaUsuario(request.getParameter("senha"));
+		usuario.setEmailUsuario(request.getParameter("email"));
+
+		// Invocar o método inserirUsuario passando o objeto contato
+		dao.inserirUsuario(usuario);
+
+		// Redirecionar para o documento login.jsp
+		response.sendRedirect("login.jsp");
+	}
+
+	// Logar usuário
+	protected void logar(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		usuario.setNomeUsuario(request.getParameter("nome"));
+		usuario.setSenhaUsuario(request.getParameter("senha"));
+
+		// Invocar o método logarUsuario passando o objeto usuario
+		Boolean result = dao.logarUsuario(usuario);
+
+		if (result) {
+			contatosUsuario(request, response, usuario);
+		} else {
+			response.sendRedirect("index.html");
+		}
+	}
+
+	// Listar contatos de um usuário
+	protected void contatosUsuario(HttpServletRequest request, HttpServletResponse response, UsuarioBeans usuario)
+			throws ServletException, IOException {
+		// response.sendRedirect("agenda.jsp");
+
+		ArrayList<JavaBeans> lista = dao.listarContatosUsuario(usuario);
+		String idUsuario = usuario.getIdUsuario();
+		String nomeUsuario = usuario.getNomeUsuario();
+
+		// Teste de recebimento da lista
+		/*
+		 * for(int i = 0; i < lista.size(); i++) {
+		 * System.out.println(lista.get(i).getIdcon());
+		 * System.out.println(lista.get(i).getNome());
+		 * System.out.println(lista.get(i).getFone());
+		 * System.out.println(lista.get(i).getEmail()); }
+		 */
+
+		// Encaminhar a lista ao documento agenda.jsp
+		request.setAttribute("contatosUsuario", lista);
+		request.setAttribute("idUsuario", idUsuario);
+		request.setAttribute("nomeUsuario", nomeUsuario);
+		RequestDispatcher rd = request.getRequestDispatcher("agendaUsuario.jsp");
+		rd.forward(request, response);
+	}
+
+	// Listar usuarios
+	protected void usuarios(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// response.sendRedirect("agenda.jsp");
+
+		ArrayList<UsuarioBeans> lista = dao.listarUsuarios();
+
+		// Teste de recebimento da lista
+		/*
+		 * for(int i = 0; i < lista.size(); i++) {
+		 * System.out.println(lista.get(i).getIdcon());
+		 * System.out.println(lista.get(i).getNome());
+		 * System.out.println(lista.get(i).getFone());
+		 * System.out.println(lista.get(i).getEmail()); }
+		 */
+
+		// Encaminhar a lista ao documento agenda.jsp
+		request.setAttribute("usuarios", lista);
+		RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
+		rd.forward(request, response);
 	}
 }
